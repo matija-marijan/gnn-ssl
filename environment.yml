@@ -1,22 +1,22 @@
-name: gnn_ssl
+name: gnn-ssl
 channels:
   - defaults
 dependencies:
-  - ca-certificates=2022.10.11=hca03da5_0
-  - certifi=2022.9.24=py38hca03da5_0
-  - libcxx=14.0.6=h848a8c0_0
-  - libffi=3.4.2=hca03da5_5
-  - ncurses=6.3=h1a28f6b_3
-  - openssl=1.1.1s=h1a28f6b_0
-  - pip=22.2.2=py38hca03da5_0
-  - python=3.8.15=h266c4f5_0
-  - readline=8.2=h1a28f6b_0
-  - setuptools=65.5.0=py38hca03da5_0
-  - sqlite=3.39.3=h1058600_0
-  - tk=8.6.12=hb8d0fd4_0
-  - wheel=0.37.1=pyhd3eb1b0_0
-  - xz=5.2.6=h1a28f6b_0
-  - zlib=1.2.13=h5a0b063_0
+  - ca-certificates=2022.10.11
+  - certifi=2022.9.24
+  - libcxx=14.0.6
+  - libffi=3.4.2
+  - ncurses=6.3
+  - openssl=1.1.1s
+  - pip=22.2.2
+  - python=3.8.15
+  - readline=8.2
+  - setuptools=65.5.0
+  - sqlite=3.39.3
+  - tk=8.6.12
+  - wheel=0.37.1
+  - xz=5.2.6
+  - zlib=1.2.13
   - pip:
       - absl-py==1.3.0
       - aiohttp==3.8.3
@@ -94,4 +94,3 @@ dependencies:
       - werkzeug==2.2.2
       - yarl==1.8.1
       - zipp==3.10.0
-prefix: /Users/ezajlerg/opt/anaconda3/envs/gnn_ssl
