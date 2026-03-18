@@ -1,0 +1,12 @@
+inputs_train:
+  dataset_paths:
+    training:
+      - /home/matija-marijan/Projects/gnn-ssl/datasets/full/train_5m
+      - /home/matija-marijan/Projects/gnn-ssl/datasets/full/train_7m
+    validation:
+      - /home/matija-marijan/Projects/gnn-ssl/datasets/full/val_5m
+      - /home/matija-marijan/Projects/gnn-ssl/datasets/full/val_7m
+    test:
+      - /home/matija-marijan/Projects/gnn-ssl/datasets/full/test_5m
+
+  checkpoint_path: null

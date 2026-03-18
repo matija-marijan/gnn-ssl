@@ -23,7 +23,8 @@ def _compute_batch_metrics(batch, batch_idx, models, metrics):
     results = {}
 
     for model_name, model in models.items():
-        y_hat = model(x)
+        x_model = _clone_dict(x)
+        y_hat = model(x_model)
         results[model_name] = {}
         for metric_name, metric in metrics.items():
             values = metric(y_hat, y)
@@ -67,7 +68,7 @@ def load_models(config):
         model = get_class(model_config["class"])(model_config)
 
         models[model_name] = {
-            "model": model.eval(),
+            "model": model.to(DEVICE).eval(),
             "evaluate_on": evaluate_on
         }
     
@@ -200,7 +201,21 @@ def _dict_to_device(d, device):
             new_d[key] = value.to(device)
         elif isinstance(value, dict):
             new_d[key] = _dict_to_device(value, device)
-    return d
+        else:
+            new_d[key] = value
+    return new_d
+
+
+def _clone_dict(d):
+    new_d = {}
+    for key, value in d.items():
+        if isinstance(value, torch.Tensor):
+            new_d[key] = value.clone()
+        elif isinstance(value, dict):
+            new_d[key] = _clone_dict(value)
+        else:
+            new_d[key] = value
+    return new_d
 
 
 if __name__ == "__main__":

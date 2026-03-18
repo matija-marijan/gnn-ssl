@@ -1,0 +1,9 @@
+defaults:
+  - _self_
+  - dataset
+  - features_full
+  - targets_full
+  - inputs_eval_full
+  - eval_full
+
+class: gnn_ssl.trainers.base.BaseTrainer

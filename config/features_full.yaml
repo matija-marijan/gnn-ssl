@@ -1,0 +1,14 @@
+defaults:
+  - dataset@features
+
+features:
+  type: stft_phase
+  n_dft: 1024
+  hop_size: 512
+  window: hann
+  onesided_dft: true
+  pad_fft_pow2: true
+  n_gcc_phat_bins: 200
+  srp_thickness: 10
+
+  class: gnn_ssl.feature_extractors.FeatureExtractor

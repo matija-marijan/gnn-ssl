@@ -28,7 +28,13 @@ class GccPhat(Module):
 
         results = gcc_phat_batch(x_i, x_j, self.sr)[0]
         # Only select central self.n_output
-        results = results[:, (n_signal - self.n_output)//2:(n_signal + self.n_output)//2]
+        start = (results.shape[1] - self.n_output) // 2
+        end = start + self.n_output
+        results = results[:, start:end]
+
+        if results.shape[1] < self.n_output:
+            pad = self.n_output - results.shape[1]
+            results = torch.nn.functional.pad(results, (0, pad))
 
         if self.normalize:
             results /= results.max(dim=1, keepdims=True)[0]
@@ -74,7 +80,8 @@ class SpatialLikelihoodGrid(Module):
    
 class MetadataAwarePairwiseFeatureExtractor(Module):
     def __init__(self, n_input, pairwise_feature_extractor=None,
-                 is_metadata_aware=True, use_rt60_as_metadata=True):
+                 is_metadata_aware=True, use_rt60_as_metadata=True,
+                 metadata_dim=3):
         super().__init__()
 
         self.pairwise_feature_extractor = pairwise_feature_extractor
@@ -86,9 +93,10 @@ class MetadataAwarePairwiseFeatureExtractor(Module):
 
         self.is_metadata_aware = is_metadata_aware
         self.use_rt60_as_metadata = use_rt60_as_metadata
+        self.metadata_dim = metadata_dim
 
         if is_metadata_aware:
-            self.n_output += 2*2*2 + 2 # 2 coordinates times 2 microphones per array + 2 room_dims
+            self.n_output += 3*self.metadata_dim
 
             if use_rt60_as_metadata:
                 self.n_output += 1
@@ -104,18 +112,22 @@ class MetadataAwarePairwiseFeatureExtractor(Module):
             return x_ij
         
         # 2. Concatenate local metadata
-        mic_coords = x["local"]["mic_coordinates"]
-        room_dims = x["global"]["room_dims"]
+        metadata = x["metadata"] if "metadata" in x else x
+        mic_coords = metadata["local"]["mic_coordinates"]
+        room_dims = metadata["global"]["room_dims"]
         x_ij = torch.cat([
-            x_ij, mic_coords[:, i].flatten(start_dim=1), mic_coords[:, j].flatten(start_dim=1),
-            room_dims], dim=1)
+            x_ij,
+            mic_coords[:, i, :self.metadata_dim].flatten(start_dim=1),
+            mic_coords[:, j, :self.metadata_dim].flatten(start_dim=1),
+            room_dims[:, :self.metadata_dim],
+        ], dim=1)
 
         if not self.use_rt60_as_metadata:
             return x_ij
 
         # 3. Concatenate global_metadata        
-        rt60 = x["global"]["rt60"]
-        x_ij = torch.cat([x_ij, room_dims, rt60], dim=1)
+        rt60 = metadata["global"]["rt60"]
+        x_ij = torch.cat([x_ij, rt60], dim=1)
 
         return x_ij
 
@@ -149,9 +161,12 @@ class ArrayWiseSpatialLikelihoodGrid(Module):
         if x_signal.ndim == 3:
             # Single array
             x_signal = x_signal.unsqueeze(1)
+        if mic_coords.ndim == 3:
+            # Single array metadata
+            mic_coords = mic_coords.unsqueeze(1)
         batch_size, n_arrays, n_array, n_signal = x_signal.shape
 
-        grids = torch.zeros((
+        grids = x_signal.new_zeros((
             batch_size, n_arrays,
             self.n_grid_points, self.n_grid_points
         ))
@@ -161,8 +176,8 @@ class ArrayWiseSpatialLikelihoodGrid(Module):
                 for j in range(i + 1, n_array):
                     grid_ij = compute_pairwise_srp_grids(
                             x_signal[:, k, i], x_signal[:, k, j], self.sr,
-                            mic_coords[:, k, i], mic_coords[:, k, j],
-                            room_dims, n_grid_points=self.n_grid_points,
+                            mic_coords[:, k, i, :2], mic_coords[:, k, j, :2],
+                            room_dims[..., :2], n_grid_points=self.n_grid_points,
                             n_correlation_neighbours=self.thickness
                     )
                     grids[:, k] += grid_ij

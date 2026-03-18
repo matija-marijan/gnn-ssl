@@ -1,0 +1,50 @@
+defaults:
+  - _self_
+  - model/tdoa_least_squares@evaluation.models.TDOA
+  - model/srp_phat@evaluation.models.SLF
+  - model/gnn_gcc@evaluation.models.GNN_GCC
+  - model/gnn_slf@evaluation.models.GNN_SLF
+  - model/graph_rel_net@evaluation.models.GraphRelNet
+
+evaluation:
+  metrics:
+    l2:
+      class: gnn_ssl.metrics.SourceDistance
+
+  models:
+    TDOA:
+      evaluate_on: [test_4m, test_5m, test_6m, test_7m]
+    SLF:
+      evaluate_on: [test_4m, test_5m, test_6m, test_7m]
+    GNN_GCC:
+      evaluate_on: [test_4m, test_5m, test_6m, test_7m]
+      model:
+        n_pairwise_features: 625
+        pairwise_feature_extractor: gcc_phat
+        pairwise_network_only: false
+        local_feature_extractor: null
+        n_layers: 3
+        dropout_rate: 0.0
+        batch_norm: false
+        activation: relu
+        output_activation: null
+        init_layers: false
+        is_metadata_aware: true
+    GNN_SLF:
+      evaluate_on: [test_4m, test_5m, test_6m, test_7m]
+      model:
+        n_pairwise_features: 625
+        pairwise_feature_extractor: null
+        pairwise_network_only: false
+        local_feature_extractor: slf
+        n_layers: 3
+        dropout_rate: 0.0
+        batch_norm: false
+        activation: relu
+        output_activation: null
+        init_layers: false
+        is_metadata_aware: true
+    GraphRelNet:
+      evaluate_on: [test_4m, test_5m, test_6m, test_7m]
+
+  batch_size: 32

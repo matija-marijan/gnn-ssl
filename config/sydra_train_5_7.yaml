@@ -1,0 +1,45 @@
+dataset_dir: /home/matija-marijan/Projects/gnn-ssl/datasets/full/train
+n_samples: 15000
+
+mics:
+  n_mics: 6
+  mic_coordinates: null
+  mic_type: single
+  n_array: 1
+  radius_in_meters: [0.02, 0.07]
+  phi: [0, 6.28]
+  mic_delay_ranges: null
+  mic_gain_ranges: null
+  mic_sampling_rate_offsets: null
+  snr_in_db: 30
+
+sources:
+  source_coordinates: null
+  speech_signals_dir: /path/to/VCTK-Corpus/wav48
+  n_sources: 1
+  moving: false
+  n_trajectory_points: 156
+
+n_interferers: 0
+interferers_snr_range: [-5, 30]
+
+room_dims: [[3, 6], [3, 6], [2, 4]]
+use_reflectivity_biased_sampling: false
+anechoic: false
+rt60: [0.3, 0.6]
+
+base_sampling_rate: 16000
+signal_duration_in_seconds: 0.5
+min_wall_distance: 0.5
+min_mic_source_dist: 0.5
+mask_delay: true
+ism_order: 17
+n_jobs: 8
+random_seed: 42
+
+default_device_height: null
+anechoic_dataset_dir: null
+
+metadata_format: json
+
+acoustic_simulator: pyroomacoustics

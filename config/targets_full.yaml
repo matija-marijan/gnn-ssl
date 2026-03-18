@@ -1,0 +1,14 @@
+targets:
+  loss: l1
+  weighted_loss: false
+
+  type: grid
+  n_output_coordinates: 2
+  hyperbolic_likelihood_weight: 1
+  gaussian_likelihood_weight: 0
+  n_points_per_axis: 25
+  sigma: 0.5
+  normalize: true
+  squared: false
+
+  loss_class: gnn_ssl.metrics.Loss

@@ -60,30 +60,33 @@ class GnnSslNet(BaseRelationNetwork):
         if config["local_feature_extractor"] is not None:
             n_input_features = config["local_feature_extractor"].n_output
 
-
-        super().__init__(n_input_features, n_output_features, config["n_pairwise_features"], config["local_feature_extractor"],
-                    config["pairwise_feature_extractor"], config["pairwise_network_only"],
-                    config["activation"], config["output_activation"], config["init_layers"], config["batch_norm"],
-                    config["dropout_rate"], config["n_layers"], SIGNAL_KEY)
-
-        # 3. Create pairwise feature extractor
-        self.use_pairwise_feature_extractor = config["pairwise_feature_extractor"] is not None
-        if self.use_pairwise_feature_extractor:
+        pairwise_feature_extractor = None
+        if config["pairwise_feature_extractor"] is not None:
             if config["pairwise_feature_extractor"] == "gcc_phat":
-                config["pairwise_feature_extractor"] = GccPhat(self.sr, feature_config["n_dft"])
+                pairwise_feature_extractor = GccPhat(
+                    self.sr,
+                    feature_config["n_gcc_phat_bins"],
+                )
             elif config["pairwise_feature_extractor"] == "spatial_likelihood_grid":
-                config["pairwise_feature_extractor"] = SpatialLikelihoodGrid(self.sr, self.n_likelihood_grid_points_per_axis)
+                pairwise_feature_extractor = SpatialLikelihoodGrid(
+                    self.sr,
+                    self.n_likelihood_grid_points_per_axis,
+                )
             else:
                 raise ValueError("pairwise_feature_extractor must be 'gcc_phat' or 'spatial_likelihood_grid'")
 
-            n_input_features = pairwise_feature_extractor.n_output
-    
-        pairwise_feature_extractor = MetadataAwarePairwiseFeatureExtractor(
+        pairwise_hook = MetadataAwarePairwiseFeatureExtractor(
             n_input_features,
-            config["pairwise_feature_extractor"],
+            pairwise_feature_extractor,
             self.is_metadata_aware,
-            self.use_rt60_as_metadata
+            self.use_rt60_as_metadata,
+            metadata_dim=dataset_config["metadata_dim"],
         )
+
+        super().__init__(n_input_features, n_output_features, config["n_pairwise_features"], config["local_feature_extractor"],
+                    pairwise_hook, config["pairwise_network_only"],
+                    config["activation"], config["output_activation"], config["init_layers"], config["batch_norm"],
+                    config["dropout_rate"], config["n_layers"], SIGNAL_KEY)
 
     def forward(self, x, estimate_coords=False):
         y = super().forward(x)
@@ -95,5 +98,22 @@ class GnnSslNet(BaseRelationNetwork):
                 x["global"]["room_dims"])
 
             return estimated_coords, y
-        else:
-            return y
+        if self.output_target == "source_coordinates":
+            return {"source_coordinates": y}
+
+        if self.output_target == "grid":
+            batch_size = y.shape[0]
+            grid = y.reshape(
+                batch_size,
+                self.n_likelihood_grid_points_per_axis,
+                self.n_likelihood_grid_points_per_axis,
+            )
+            return {
+                "grid": grid,
+                "source_coordinates": grid_argmax(
+                    grid,
+                    x["metadata"]["global"]["room_dims"][:, :2],
+                ),
+            }
+
+        return y

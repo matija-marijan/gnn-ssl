@@ -1,0 +1,6 @@
+defaults:
+  - gnn_ssl
+
+model:
+  local_feature_extractor: slf
+  pairwise_feature_extractor: null

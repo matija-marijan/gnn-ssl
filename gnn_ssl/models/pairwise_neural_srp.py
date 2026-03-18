@@ -63,6 +63,12 @@ class PairwiseNeuralSrp(nn.Module):
             "signal": self.feature_extractor(x),
             "metadata": x["metadata"]
         }
+
+        if x["signal"].shape[1] != self.n_input_channels:
+            x["signal"] = x["signal"][:, :self.n_input_channels]
+
+            if self.is_metadata_aware:
+                x["metadata"]["local"]["mic_coordinates"] = x["metadata"]["local"]["mic_coordinates"][:, :self.n_input_channels]
         
         x = self.encoder(x)
         batch_size = x.shape[0]

@@ -127,8 +127,13 @@ class PairwiseRelationNetwork(nn.Module):
                 # if self.mask:
                 #     pairwise_relation *= x_ij[:, :pairwise_relation.shape[1]]
                 pairwise_relations.append(pairwise_relation)
-        
-        pairwise_relations = torch.stack(pairwise_relations, dim=1)
+
+        if len(pairwise_relations) == 0:
+            # No pair can be formed (for example, a single array/device).
+            # Fall back to the available channel representation.
+            pairwise_relations = x_signal
+        else:
+            pairwise_relations = torch.stack(pairwise_relations, dim=1)
         
         if self.standalone:
             x = pairwise_relations.mean(dim=1)

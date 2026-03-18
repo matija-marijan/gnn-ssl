@@ -64,7 +64,7 @@ class Trainer(pl.Trainer):
         super().__init__(
             max_epochs=training_config["n_epochs"],
             callbacks=callbacks,
-            logger=[pl_loggers.TensorBoardLogger(save_dir=SAVE_DIR)],
+            logger=_create_loggers(training_config),
             accelerator=accelerator,
             strategy=strategy,
             log_every_n_steps=25,
@@ -123,6 +123,23 @@ def _create_torch_dataloaders(config):
         val_dataloader,
         test_dataloader
     )
+
+
+def _create_loggers(training_config):
+    loggers = [pl_loggers.TensorBoardLogger(save_dir=SAVE_DIR)]
+
+    if "wandb" in training_config and training_config["wandb"]["enabled"]:
+        wandb_cfg = training_config["wandb"]
+        loggers.append(
+            pl_loggers.WandbLogger(
+                project=wandb_cfg["project"],
+                name=wandb_cfg["run_name"],
+                save_dir=SAVE_DIR,
+                log_model=wandb_cfg["log_model"],
+            )
+        )
+
+    return loggers
 
 
 @hydra.main(config_path="config", config_name="config", version_base="1.1")

@@ -1,0 +1,20 @@
+defaults:
+  - ../features@model
+  - ../targets@model
+
+model:
+  class: gnn_ssl.models.graph_rel_net.GraphRelNetGnnSsl
+  is_metadata_aware: true
+
+  emb_dim: 128
+  node_hid: 128
+  n_edge_bins: 200
+
+  head_hidden: 512
+  head_layers: 3
+
+  activation: relu
+  output_activation: null
+  batch_norm: false
+  dropout_rate: 0.0
+  normalize_output: true

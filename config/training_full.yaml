@@ -1,0 +1,31 @@
+training:
+  batch_size: 32
+  n_epochs: 100
+  learning_rate: 0.0005
+  learning_rate_decay_steps: [40, 70, 90]
+  learning_rate_decay_values: 0.5
+  n_workers: 8
+  multi_gpu: true
+  multi_gpu_strategy: ddp
+  check_val_every_n_epoch: 1
+  log_step: 50
+
+  optimizer: adam
+  betas: [0.9, 0.999]
+
+  progress_bar_type: tqdm
+  progress_bar_refresh_rate: 1
+
+  early_stopping:
+    enabled: true
+    key_to_monitor: validation_loss
+    min_delta: 0.0
+    patience_in_epochs: 3
+
+  transfer_learning: false
+
+  wandb:
+    enabled: true
+    project: GNN-SSL
+    run_name: null
+    log_model: false
