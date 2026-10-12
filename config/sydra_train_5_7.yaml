@@ -15,7 +15,7 @@ mics:
 
 sources:
   source_coordinates: null
-  speech_signals_dir: /path/to/VCTK-Corpus/wav48
+  speech_signals_dir: /mnt/data/Projects/graph-ssl/data/signals/vctk/wav48_silence_trimmed
   n_sources: 1
   moving: false
   n_trajectory_points: 156
