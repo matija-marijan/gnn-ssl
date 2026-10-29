@@ -152,6 +152,9 @@ def main(config: DictConfig):
                                         See the config/ directory for the configuration
     """
 
+    seed = config["training"].get("seed", 0)
+    pl.seed_everything(seed, workers=True)
+
     dataset_train, dataset_val, dataset_test = _create_torch_dataloaders(config)
 
     trainer = Trainer(config)
