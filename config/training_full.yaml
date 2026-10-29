@@ -1,11 +1,12 @@
 training:
-  batch_size: 32
+  seed: 0
+  batch_size: 16
   n_epochs: 100
   learning_rate: 0.0005
-  learning_rate_decay_steps: [40, 70, 90]
+  learning_rate_decay_steps: [40, 70]
   learning_rate_decay_values: 0.5
-  n_workers: 8
-  multi_gpu: true
+  n_workers: 4
+  multi_gpu: false
   multi_gpu_strategy: ddp
   check_val_every_n_epoch: 1
   log_step: 50
@@ -19,7 +20,7 @@ training:
   early_stopping:
     enabled: true
     key_to_monitor: validation_loss
-    min_delta: 0.0
+    min_delta: 0
     patience_in_epochs: 3
 
   transfer_learning: false
