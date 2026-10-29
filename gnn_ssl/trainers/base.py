@@ -32,14 +32,16 @@ class BaseTrainer(pl.LightningModule):
 
     def _step(self, batch, batch_idx, epoch_type):
 
-        x, y = batch[0] # 0 is to ignore the microphone array index
-        
-        # 1. Compute model output and loss
-        x = self.forward(x)
-        loss = self.loss(x, y, mean_reduce=True)
+        losses = []
+        for (x, y) in batch:
+            # 1. Compute model output and loss for each microphone configuration
+            output = self.forward(x)
+            losses.append(self.loss(output, y, mean_reduce=True))
+
+        loss = torch.stack(losses).mean()
 
         self.log_dict({f"{epoch_type}_loss_step": loss})
-        
+
         return {
             "loss": loss
         }
