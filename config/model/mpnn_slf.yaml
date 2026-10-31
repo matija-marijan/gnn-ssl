@@ -1,0 +1,25 @@
+defaults:
+  - ../features@model
+  - ../targets@model
+
+model:
+  class: gnn_ssl.models.mpnn_slf.MPNN_SLF
+  is_metadata_aware: true
+
+  n_edge_features: 625
+  n_correlation_neighbours: 10
+  normalize_slf: false
+  emb_dim: 128
+  node_hid: 128
+
+  # Match MPNN-GCC's relation-branch skip; only the edge signal feature changes.
+  pair_skip: raw
+  edge_weighting: distance
+
+  n_pairwise_features: 625
+  activation: relu
+  output_activation: null
+  init_layers: false
+  batch_norm: false
+  dropout_rate: 0.0
+  n_layers: 3
