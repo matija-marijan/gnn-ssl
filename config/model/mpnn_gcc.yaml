@@ -11,8 +11,14 @@ model:
   emb_dim: 128
   node_hid: 128
 
+  # Relation-branch skip: raw pair features (GNN-GCC's 209-d input) are fed to
+  # the pairwise relation network alongside the message-passed node embeddings.
+  pair_skip: raw             # none | raw | encoded
+  edge_weighting: distance   # distance (Graph-RelNet) | uniform
+
   activation: relu
   output_activation: null
+  init_layers: false
   batch_norm: false
   dropout_rate: 0.0
   n_layers: 3
