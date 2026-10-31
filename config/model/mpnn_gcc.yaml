@@ -1,0 +1,18 @@
+defaults:
+  - ../features@model
+  - ../targets@model
+
+model:
+  class: gnn_ssl.models.mpnn_gcc.MPNN_GCC
+  is_metadata_aware: true
+
+  n_pairwise_features: 625
+  n_edge_bins: 200
+  emb_dim: 128
+  node_hid: 128
+
+  activation: relu
+  output_activation: null
+  batch_norm: false
+  dropout_rate: 0.0
+  n_layers: 3
