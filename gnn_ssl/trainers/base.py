@@ -87,16 +87,25 @@ class BaseTrainer(pl.LightningModule):
 
     def configure_optimizers(self):
         lr = self.training_config["learning_rate"]
-        decay_step = self.training_config["learning_rate_decay_steps"]
-        decay_value = self.training_config["learning_rate_decay_values"]
 
         if self.training_config["optimizer"] == "sgd":
             optimizer = torch.optim.SGD(self.parameters(), lr=lr)
         elif self.training_config["optimizer"] == "adam":
             optimizer = torch.optim.Adam(self.parameters(), lr=lr,
                             betas=self.training_config["betas"])
-        scheduler = MultiStepLR(optimizer, decay_step, decay_value)
+        else:
+            raise ValueError(
+                f"Unsupported optimizer: {self.training_config['optimizer']}"
+            )
 
+        if not self.training_config.get("use_learning_rate_scheduler", True):
+            return optimizer
+
+        scheduler = MultiStepLR(
+            optimizer,
+            self.training_config["learning_rate_decay_steps"],
+            self.training_config["learning_rate_decay_values"],
+        )
         return [optimizer], [scheduler]
 
 
